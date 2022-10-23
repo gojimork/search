@@ -1,1 +1,1 @@
-# search
+https://gojimork.github.io/search/
