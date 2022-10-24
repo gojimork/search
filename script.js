@@ -2,7 +2,6 @@ const input = document.querySelector('input')
 const items = document.querySelectorAll('.search__item')
 const searchList = document.querySelector('.search__list')
 const results = document.querySelector('.result')
-let handlerArr = []
 
 function addSelect(item){
   
@@ -46,11 +45,8 @@ async function search(inputValue){
   .then(response => {
     for(let i=0; i<5; i++){
       if(response.items[i].name){
-        items[i].removeEventListener('click', handlerArr[i])
-        const handler = ()=>addSelect(response.items[i])
-        handlerArr[i] = handler
         items[i].textContent = response.items[i].name
-        items[i].addEventListener('click', handler)
+        items[i].onclick = ()=> addSelect(response.items[i])
         
       } else{
         console.log('такой репозиторий не найден')
