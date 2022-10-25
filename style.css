@@ -32,13 +32,6 @@ body{
     line-height: 56px;
 }
 
-.search__list{
-    display: none;
-}
-
-.search__list--show{
-    display: block;
-}
 
 .search__item{
     width: 500px;

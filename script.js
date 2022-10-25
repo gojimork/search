@@ -1,63 +1,52 @@
 const input = document.querySelector('input')
 const items = document.querySelectorAll('.search__item')
-const searchList = document.querySelector('.search__list')
+const searchForm = document.querySelector('.search')
+let searchList 
 const results = document.querySelector('.result')
 
+function createEl(tag, classOfEl, parentEl = undefined ){
+  const newEl = document.createElement(tag)
+  newEl.className = classOfEl
+  if(parentEl) parentEl.append(newEl)
+  return newEl
+}
+
 function addSelect(item){
-  
-  const selectedItem = document.createElement('li')
-  selectedItem.className = 'result__item'
+  const selectedItem = createEl('li','result__item')
 
-  const selectedSubitem = document.createElement('ul')
-  selectedSubitem.className = 'result__subitem'
-  selectedItem.prepend(selectedSubitem)
+  const selectedSubitem = createEl('ul', 'result__subitem', selectedItem )
 
-  const name = document.createElement('li')
+  const name = createEl('li', '', selectedSubitem)
   name.textContent = `name: ${item.name}`
-  selectedSubitem.append(name)
 
-  const owner = document.createElement('li')
+  const owner = createEl('li', '', selectedSubitem)
   owner.textContent = `owner: ${item.owner.login}`
-  selectedSubitem.append(owner)
-  
-  const stars = document.createElement('li')
+
+  const stars = createEl('li', '', selectedSubitem)
   stars.textContent = `stars: ${item.stargazers_count}`
-  selectedSubitem.append(stars)
- 
-  const close = document.createElement('div')
-  close.className = 'result__close'
-  selectedItem.append(close)
-  close.addEventListener('click',()=>selectedItem.remove())
+
+  const close = createEl('div', 'result__close', selectedItem)
+  close.onclick = () => selectedItem.remove()
 
   results.prepend(selectedItem)
 }
 
+async function getResponse(inputValue){
+  let response =  await  fetch(`https://api.github.com/search/repositories?q=${inputValue}&per_page=5`)
+  response = await response.json()
+  return await response.items
+}  
 
 async function search(inputValue){
-  console.log(`запрос на сервер отправлен! ключ: ${inputValue}`)
-  await fetch(`https://api.github.com/search/repositories?q=${inputValue}&per_page=5`)
-  .then(response => {
-    console.log(`получен промис от запроса по ключю: ${inputValue}`)
-    if(response.ok){
-      return response.json()
-    }
-  })
-  .then(response => {
+  let items = await getResponse(inputValue)
+  if(searchList) searchList.remove()
+  searchList = createEl('ul', 'search__list')
     for(let i=0; i<5; i++){
-      if(response.items[i].name){
-        items[i].textContent = response.items[i].name
-        items[i].onclick = ()=> addSelect(response.items[i])
-        
-      } else{
-        console.log('такой репозиторий не найден')
-      }
+      const newResult = createEl('li', 'search__item', searchList) 
+      newResult.textContent = items[i].name
+      newResult.onclick = () => addSelect(items[i])   
     }
-    if(input.value){
-      searchList.classList.add('search__list--show')
-    }
-    
-  })
-  .catch(error => console.error(error))
+    if(input.value) searchForm.append(searchList)
 }
 
 const debounce = (fn, debounceTime) => {
@@ -70,15 +59,11 @@ const debounce = (fn, debounceTime) => {
 
 search = debounce(search, 500)
 
-input.addEventListener('keyup',  (e) => {
+input.addEventListener('keyup',  e => {
   if(e.target.value) {
     search(e.target.value)
   } else {
-    searchList.classList.remove('search__list--show')
+    searchList.remove()
   }
 })
-
-
-
-
 
