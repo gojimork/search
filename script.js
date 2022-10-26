@@ -32,9 +32,15 @@ function addSelect(item){
 }
 
 async function getResponse(inputValue){
-  let response =  await  fetch(`https://api.github.com/search/repositories?q=${inputValue}&per_page=5`)
-  response = await response.json()
-  return await response.items
+  try{
+    let response =  await  fetch(`https://api.github.com/search/repositories?q=${inputValue}&per_page=5`)
+    response = await response.json()
+    return await response.items
+  }
+  catch(e){
+    console.error(e)
+  }
+  
 }  
 
 async function search(inputValue){
